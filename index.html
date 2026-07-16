@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Aurora | Collaborative Design Platform</title>
+  <meta name="description" content="AI-powered collaborative design whiteboard prototype.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="app-header glass-panel">
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <span class="logo-text">Aurora <span class="badge">V1.0 Live</span></span>
+      </div>
+      
+      <!-- Collaboration status -->
+      <div class="collaboration-status">
+        <div class="status-indicator active"></div>
+        <span class="status-text">4 Designers Active</span>
+        
+        <!-- Active User Avatars -->
+        <div class="avatar-stack">
+          <div class="avatar sri" title="Sri Vardhan (You)">SV</div>
+          <div class="avatar yuki" style="--bg: #ff0055" title="Yuki Sato">YS</div>
+          <div class="avatar alex" style="--bg: #00d4ff" title="Alex Rivera">AR</div>
+          <div class="avatar Chloe" style="--bg: #ffb700" title="Chloe Chen">CC</div>
+        </div>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="header-actions">
+        <button id="btn-share" class="action-btn text-btn"><i data-lucide="share-2"></i> Share</button>
+        <button id="btn-export" class="action-btn primary-btn"><i data-lucide="download"></i> Export</button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="workspace">
+      
+      <!-- Canvas Wrapper -->
+      <div class="canvas-wrapper" id="canvas-wrapper">
+        <canvas id="paint-canvas"></canvas>
+        
+        <!-- Collaborative Cursor Overlay -->
+        <div id="cursor-overlay" class="cursor-overlay">
+          <!-- Yuki's Cursor -->
+          <div id="cursor-yuki" class="collab-cursor" style="--color: #ff0055">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M5.65376 12.3963L16.4883 4.19504C17.3718 3.52554 18.5714 4.54589 18.0645 5.53424L12.9806 15.449C12.5539 16.2812 11.3995 16.2737 11.0834 15.4371L9.29744 10.7107C9.20815 10.4745 9.02179 10.2881 8.7856 10.1988L4.05921 8.41291C3.22263 8.09686 3.21516 6.94246 4.04737 6.51576L5.65376 12.3963Z" fill="#ff0055" stroke="white" stroke-width="2"/>
+            </svg>
+            <span class="cursor-label">Yuki Sato</span>
+          </div>
+
+          <!-- Alex's Cursor -->
+          <div id="cursor-alex" class="collab-cursor" style="--color: #00d4ff">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M5.65376 12.3963L16.4883 4.19504C17.3718 3.52554 18.5714 4.54589 18.0645 5.53424L12.9806 15.449C12.5539 16.2812 11.3995 16.2737 11.0834 15.4371L9.29744 10.7107C9.20815 10.4745 9.02179 10.2881 8.7856 10.1988L4.05921 8.41291C3.22263 8.09686 3.21516 6.94246 4.04737 6.51576L5.65376 12.3963Z" fill="#00d4ff" stroke="white" stroke-width="2"/>
+            </svg>
+            <span class="cursor-label">Alex Rivera</span>
+          </div>
+
+          <!-- Chloe's Cursor -->
+          <div id="cursor-chloe" class="collab-cursor" style="--color: #ffb700">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M5.65376 12.3963L16.4883 4.19504C17.3718 3.52554 18.5714 4.54589 18.0645 5.53424L12.9806 15.449C12.5539 16.2812 11.3995 16.2737 11.0834 15.4371L9.29744 10.7107C9.20815 10.4745 9.02179 10.2881 8.7856 10.1988L4.05921 8.41291C3.22263 8.09686 3.21516 6.94246 4.04737 6.51576L5.65376 12.3963Z" fill="#ffb700" stroke="white" stroke-width="2"/>
+            </svg>
+            <span class="cursor-label">Chloe Chen</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Toolbar (Canvas Controls) -->
+      <nav class="toolbar glass-panel">
+        <!-- Drawing Tools -->
+        <div class="tool-section">
+          <button id="tool-brush" class="tool-btn active" title="Brush Tool"><i data-lucide="brush"></i></button>
+          <button id="tool-rect" class="tool-btn" title="Rectangle"><i data-lucide="square"></i></button>
+          <button id="tool-circle" class="tool-btn" title="Circle"><i data-lucide="circle"></i></button>
+          <button id="tool-eraser" class="tool-btn" title="Eraser"><i data-lucide="eraser"></i></button>
+        </div>
+        
+        <div class="divider"></div>
+
+        <!-- Stroke settings -->
+        <div class="tool-section">
+          <!-- Color Palette Picker -->
+          <div class="color-picker-wrapper">
+            <button id="btn-color" class="color-btn" style="background-color: #ff758f;" title="Choose Color"></button>
+            <div class="color-palette-popover glass-panel">
+              <button class="color-swatch active" style="background-color: #ff758f;" data-color="#ff758f"></button>
+              <button class="color-swatch" style="background-color: #4f6bff;" data-color="#4f6bff"></button>
+              <button class="color-swatch" style="background-color: #39ff14;" data-color="#39ff14"></button>
+              <button class="color-swatch" style="background-color: #ffd700;" data-color="#ffd700"></button>
+              <button class="color-swatch" style="background-color: #00d4ff;" data-color="#00d4ff"></button>
+              <button class="color-swatch" style="background-color: #ff6b35;" data-color="#ff6b35"></button>
+              <button class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></button>
+            </div>
+          </div>
+
+          <!-- Brush Size Control -->
+          <div class="size-picker-wrapper">
+            <button id="btn-size" class="tool-btn" title="Brush Size"><i data-lucide="sliders"></i></button>
+            <div class="size-slider-popover glass-panel">
+              <label for="brush-size">Size: <span id="size-val">5px</span></label>
+              <input type="range" id="brush-size" min="1" max="40" value="5">
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- History -->
+        <div class="tool-section">
+          <button id="btn-undo" class="tool-btn" title="Undo"><i data-lucide="undo-2"></i></button>
+          <button id="btn-redo" class="tool-btn" title="Redo"><i data-lucide="redo-2"></i></button>
+          <button id="btn-clear" class="tool-btn danger" title="Clear Canvas"><i data-lucide="trash-2"></i></button>
+        </div>
+      </nav>
+
+      <!-- AI Design Suggestions Sidebar -->
+      <aside class="ai-sidebar glass-panel">
+        <div class="sidebar-header">
+          <div class="ai-avatar">AI</div>
+          <div>
+            <h3>Aurora Assistant</h3>
+            <p>Ready to suggest designs...</p>
+          </div>
+        </div>
+
+        <div class="sidebar-content">
+          <!-- Suggestion Item -->
+          <div class="suggestion-card">
+            <div class="card-header">
+              <i data-lucide="sparkles"></i>
+              <h4>Color Palette Match</h4>
+            </div>
+            <p>Based on your current sketch, here is a recommended color harmony:</p>
+            <div class="ai-palette">
+              <div class="color-strip" style="background-color: #ff758f;" title="#ff758f"></div>
+              <div class="color-strip" style="background-color: #ffe5ec;" title="#ffe5ec"></div>
+              <div class="color-strip" style="background-color: #ffd700;" title="#ffd700"></div>
+              <div class="color-strip" style="background-color: #4a154b;" title="#4a154b"></div>
+            </div>
+            <button class="apply-btn text-btn">Apply Palette</button>
+          </div>
+
+          <!-- Layout Ideas -->
+          <div class="suggestion-card">
+            <div class="card-header">
+              <i data-lucide="layout"></i>
+              <h4>Interactive Auto-Complete</h4>
+            </div>
+            <p>Draw a rough circle or square. The AI assistant will automatically smooth the contours and snap them into clean geometric shapes.</p>
+            <div class="status-tag">Active</div>
+          </div>
+
+          <!-- Dynamic Suggestion based on Drawing -->
+          <div id="ai-dynamic-prompt" class="suggestion-card gradient-border">
+            <div class="card-header">
+              <i data-lucide="lightbulb" style="color: #ffd700;"></i>
+              <h4>Generative Idea</h4>
+            </div>
+            <div id="ai-idea-text" class="idea-text">Draw something on the canvas to trigger creative design suggestions from the AI model!</div>
+            <div class="pulse-ring"></div>
+          </div>
+        </div>
+      </aside>
+      
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
