@@ -23,42 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxStackSize = 30;
   let snapshotBeforeStroke = null;
 
-  // Set canvas scale relative to backing store
-  function resizeCanvas() {
-    const w = wrapper.clientWidth || 800;
-    const h = wrapper.clientHeight || 600;
-
-    if (canvas.width !== w || canvas.height !== h) {
-      // Save current content before resize clears it
-      let tempImage = null;
-      if (canvas.width > 0 && canvas.height > 0) {
-        try {
-          tempImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        } catch (e) {
-          console.warn("Could not save image data before resize:", e);
-        }
-      }
-
-      canvas.width = w;
-      canvas.height = h;
-
-      // Restore saved content
-      if (tempImage) {
-        try {
-          ctx.putImageData(tempImage, 0, 0);
-        } catch (e) {
-          console.warn("Could not restore image data directly, using fallback:", e);
-        }
-      }
-
-      // Re-apply context configurations
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = currentSize;
-      ctx.strokeStyle = currentColor;
-    }
-  }
-
   // Save current canvas state to history
   function saveState() {
     if (undoStack.length >= maxStackSize) {
@@ -89,30 +53,71 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Initialize canvas size
-  resizeCanvas();
-  window.addEventListener('resize', resizeCanvas);
-  
-  // Capture initial state
-  saveState();
+  // Use ResizeObserver for absolute robustness on initial loads and layout updates
+  const resizeObserver = new ResizeObserver((entries) => {
+    for (let entry of entries) {
+      const w = Math.floor(entry.contentRect.width) || 800;
+      const h = Math.floor(entry.contentRect.height) || 600;
+      
+      if (canvas.width !== w || canvas.height !== h) {
+        // Save current contents
+        let tempImage = null;
+        if (canvas.width > 0 && canvas.height > 0) {
+          try {
+            tempImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          } catch (e) {
+            console.warn("Could not save image data before resize:", e);
+          }
+        }
+
+        canvas.width = w;
+        canvas.height = h;
+
+        // Restore content
+        if (tempImage) {
+          try {
+            ctx.putImageData(tempImage, 0, 0);
+          } catch (e) {
+            console.warn("Could not restore image data directly, using fallback:", e);
+          }
+        }
+
+        // Re-apply context configurations
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = currentSize;
+        ctx.strokeStyle = currentColor;
+
+        // If history is empty, save the first empty state
+        if (undoStack.length === 0) {
+          saveState();
+        }
+      }
+    }
+  });
+
+  resizeObserver.observe(wrapper);
 
   // --- Coordinates Mapping ---
   function getCoordinates(e) {
     const rect = canvas.getBoundingClientRect();
     
-    // Scale factors to handle CSS dimension scaling
+    // Scale factors to handle mismatch between CSS dimensions and internal canvas dimensions
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
+    let clientX, clientY;
     if (e.touches && e.touches.length > 0) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top) * scaleY
-      };
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
     }
+
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY
     };
   }
 
@@ -127,14 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     saveSnapshotBeforeStroke();
 
+    // Set configuration values for the stroke
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = currentSize;
+    ctx.strokeStyle = currentTool === 'eraser' ? '#0b0c10' : currentColor; // Match background color for eraser
+
     if (currentTool === 'brush' || currentTool === 'eraser') {
       ctx.beginPath();
       ctx.moveTo(lastX, lastY);
       ctx.lineTo(coords.x, coords.y);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = currentSize;
-      ctx.strokeStyle = currentTool === 'eraser' ? '#12131a' : currentColor;
       ctx.stroke();
     }
   }
@@ -152,14 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.beginPath();
       ctx.moveTo(lastX, lastY);
       ctx.lineTo(coords.x, coords.y);
-      ctx.strokeStyle = currentTool === 'eraser' ? '#12131a' : currentColor;
+      ctx.strokeStyle = currentTool === 'eraser' ? '#0b0c10' : currentColor;
       ctx.stroke();
       
       // Update last point
       lastX = coords.x;
       lastY = coords.y;
     } else {
-      // Shapes (restores context to click down state and previews dragging frame)
+      // Shapes preview restoration
       restoreSnapshotBeforeStroke();
       ctx.beginPath();
       ctx.strokeStyle = currentColor;
@@ -182,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState();
   }
 
-  // Event Listeners
+  // Event Listeners (Bound directly to canvas for crisp coordinate detection)
   canvas.addEventListener('mousedown', startDraw);
   canvas.addEventListener('mousemove', draw);
   canvas.addEventListener('mouseup', stopDraw);
@@ -225,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Size popover
+  // Brush Size popover
   const sizeBtn = document.getElementById('btn-size');
   const sizePopover = document.querySelector('.size-slider-popover');
   const sizeSlider = document.getElementById('brush-size');
@@ -276,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Export & Share
   document.getElementById('btn-export').addEventListener('click', () => {
     const link = document.createElement('a');
-    link.download = 'aurora-board.png';
+    link.download = 'aurora-whiteboard.png';
     link.href = canvas.toDataURL();
     link.click();
   });
@@ -298,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     for (const key in cursors) {
       const c = cursors[key];
-      c.phase += 0.004;
+      c.phase += 0.003;
 
       const ampX = w * 0.35;
       const ampY = h * 0.35;
@@ -317,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   requestAnimationFrame(updateCursors);
 
-  // Collaborative wiggle strokes
+  // Collaborative drawings
   function simulateRemoteDrawing() {
     if (!isDrawing && Math.random() < 0.25) {
       const designers = ['yuki', 'alex', 'chloe'];

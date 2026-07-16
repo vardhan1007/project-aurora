@@ -11,6 +11,25 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
+  <!-- Global Error Logger for robust remote debugging -->
+  <script>
+    window.addEventListener('error', function(e) {
+      const errorOverlay = document.createElement('div');
+      errorOverlay.style.position = 'fixed';
+      errorOverlay.style.top = '10px';
+      errorOverlay.style.left = '10px';
+      errorOverlay.style.background = '#ff0055';
+      errorOverlay.style.color = '#fff';
+      errorOverlay.style.padding = '12px 18px';
+      errorOverlay.style.borderRadius = '8px';
+      errorOverlay.style.zIndex = '999999';
+      errorOverlay.style.fontFamily = 'monospace';
+      errorOverlay.style.fontSize = '12px';
+      errorOverlay.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+      errorOverlay.innerHTML = '<strong>Uncaught Error:</strong> ' + e.message + '<br><small>at ' + e.filename + ':' + e.lineno + '</small>';
+      document.body.appendChild(errorOverlay);
+    });
+  </script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
