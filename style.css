@@ -29,7 +29,7 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-dark);
+  background: radial-gradient(circle at 50% 50%, #11121d 0%, #07070a 100%);
   color: var(--text-primary);
   height: 100vh;
   overflow: hidden;
