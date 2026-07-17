@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Aurora | Manga Art Sketchbook</title>
-  <meta name="description" content="An interactive animated manga sketchbook showing animated stroke-by-stroke drawings.">
+  <title>Aurora Paint Studio | Professional Creative Canvas</title>
+  <meta name="description" content="A professional-grade, multi-layer glassmorphic web drawing editor inspired by Clip Studio Paint.">
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@500;700;900&family=Outfit:wght@400;600;800&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css">
   <!-- Lucide Icons -->
@@ -16,131 +16,193 @@
 </head>
 <body>
 
-  <!-- Background Halftone Screen Tone Overlay -->
-  <div class="screentone-overlay"></div>
-
   <!-- App Wrapper -->
-  <div class="app-container">
+  <div class="studio-wrapper">
     
-    <!-- Manga Header Panel -->
-    <header class="app-header glass-panel">
-      <div class="header-left">
-        <span class="jp-logo">極光</span>
-        <h1>Aurora Sketchbook</h1>
+    <!-- Top Menu Bar -->
+    <header class="top-bar glass-panel">
+      <div class="brand">
+        <div class="brand-glow"></div>
+        <span class="brand-name">Aurora Paint Studio</span>
+        <span class="version-tag">Pro V1.5</span>
       </div>
-      <div class="header-right">
-        <div class="status-indicator">
-          <span class="pulse-dot"></span>
-          <span>Drawing Playback Active</span>
+      
+      <!-- Menu Options -->
+      <nav class="menu-nav">
+        <div class="menu-item">File
+          <div class="dropdown-menu">
+            <button id="menu-new">New Canvas</button>
+            <button id="menu-save">Save Project</button>
+            <button id="menu-export">Export Image</button>
+          </div>
+        </div>
+        <div class="menu-item">Edit
+          <div class="dropdown-menu">
+            <button id="menu-undo">Undo</button>
+            <button id="menu-redo">Redo</button>
+            <button id="menu-clear">Clear Active Layer</button>
+          </div>
+        </div>
+        <div class="menu-item">Layer
+          <div class="dropdown-menu">
+            <button id="menu-add-layer">New Raster Layer</button>
+            <button id="menu-delete-layer">Delete Layer</button>
+            <button id="menu-merge-layers">Merge Visible</button>
+          </div>
+        </div>
+        <div class="menu-item">Filters
+          <div class="dropdown-menu">
+            <button id="filter-invert">Invert Colors</button>
+            <button id="filter-blur">Gaussian Blur (Simulated)</button>
+            <button id="filter-grayscale">Grayscale</button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Active Status -->
+      <div class="status-indicators">
+        <div class="status-bubble">
+          <span class="status-pulse"></span>
+          <span>Workspace Sync: Active</span>
         </div>
       </div>
     </header>
 
-    <!-- Main Workspace Grid -->
-    <main class="workspace">
+    <!-- Main Studio Workspace Grid -->
+    <div class="studio-body">
       
-      <!-- LEFT SIDEBAR: MANGA CONTROLS -->
-      <aside class="control-sidebar glass-panel">
-        <div class="sidebar-header">
-          <span class="jp-label">操作パネル</span>
-          <h3>Sketch Controls</h3>
+      <!-- LEFT TOOLBAR (Icons) -->
+      <aside class="left-toolbar glass-panel">
+        <div class="tool-group">
+          <button id="tool-select" class="tool-icon" title="Select / Move Tool"><i data-lucide="mouse-pointer"></i></button>
+          <button id="tool-pen" class="tool-icon active" title="Pen Tool (Hard Line)"><i data-lucide="pen-tool"></i></button>
+          <button id="tool-brush" class="tool-icon" title="Watercolor Brush (Soft)"><i data-lucide="brush"></i></button>
+          <button id="tool-eraser" class="tool-icon" title="Eraser Tool"><i data-lucide="eraser"></i></button>
+          <button id="tool-bucket" class="tool-icon" title="Paint Bucket (Flood Fill)"><i data-lucide="paint-bucket"></i></button>
         </div>
-
-        <div class="control-group">
-          <label>Choose Artwork</label>
-          <div class="artwork-list">
-            <button class="artwork-btn active" data-sketch="sakura">
-              <span class="art-num">01</span>
-              <div class="art-details">
-                <h4>Sakura Torii</h4>
-                <p>Zen shrine silhouette</p>
-              </div>
-            </button>
-            <button class="artwork-btn" data-sketch="ninja">
-              <span class="art-num">02</span>
-              <div class="art-details">
-                <h4>Cyber Ninja</h4>
-                <p>Action panel drawing</p>
-              </div>
-            </button>
-            <button class="artwork-btn" data-sketch="eye">
-              <span class="art-num">03</span>
-              <div class="art-details">
-                <h4>Manga Eye</h4>
-                <p>Expressive ink details</p>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Playback Actions</label>
-          <div class="playback-controls">
-            <button id="btn-play" class="playback-btn primary-btn"><i data-lucide="play"></i> Draw Sketch</button>
-            <button id="btn-clear" class="playback-btn text-btn"><i data-lucide="rotate-ccw"></i> Restart</button>
-          </div>
-        </div>
-
-        <div class="control-group">
-          <label>Interactive Canvas Trace</label>
-          <div class="toggle-card">
-            <div class="toggle-info">
-              <h4>Stylus Overlays</h4>
-              <p>Enable manual sketching & tracing directly over the animated panels.</p>
-            </div>
-            <button id="btn-toggle-trace" class="toggle-switch active">Active</button>
-          </div>
-        </div>
-
-        <!-- Float Sound Effects panel -->
-        <div class="control-group">
-          <label>Manga SFX Soundwaves</label>
-          <div class="sfx-buttons">
-            <button class="sfx-tag" data-sfx="gogo">ゴゴゴ (Rumble)</button>
-            <button class="sfx-tag" data-sfx="don">ドン (Boom)</button>
-            <button class="sfx-tag" data-sfx="suu">スッ (Swoosh)</button>
-          </div>
+        <div class="toolbar-divider"></div>
+        <div class="tool-group">
+          <button id="tool-rect" class="tool-icon" title="Rectangle Shape"><i data-lucide="square"></i></button>
+          <button id="tool-circle" class="tool-icon" title="Circle Shape"><i data-lucide="circle"></i></button>
+          <button id="tool-text" class="tool-icon" title="Text Tool"><i data-lucide="type"></i></button>
         </div>
       </aside>
 
-      <!-- MIDDLE: CORE SKETCH CANVAS -->
-      <section class="sketch-stage">
+      <!-- LEFT SIDEBAR: PROPERTIES & SETTINGS -->
+      <aside class="properties-sidebar glass-panel">
+        <div class="panel-section">
+          <h4>Tool Properties</h4>
+          <span class="tool-mode-label" id="active-tool-display">Tool: Pen</span>
+        </div>
         
-        <!-- Animated Drawing Panel -->
-        <div class="manga-panel" id="manga-panel-element">
-          <!-- The SVG animated paths load here -->
-          <div class="svg-container" id="svg-mount"></div>
-
-          <!-- User Trace Canvas -->
-          <canvas id="trace-canvas"></canvas>
-
-          <!-- Interactive Brush Tip Indicator -->
-          <div id="drawing-tip" class="drawing-tip">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L2 22h20L12 2z" fill="#ff4d6d" />
-            </svg>
-            <span class="tip-label">Ink...</span>
+        <div class="panel-section">
+          <div class="slider-header">
+            <span>Brush Size</span>
+            <span id="brush-size-val">5px</span>
           </div>
-
-          <!-- Japanese SFX floating element -->
-          <div id="floating-sfx" class="floating-sfx">ゴゴゴ</div>
+          <input type="range" id="input-brush-size" min="1" max="100" value="5" class="studio-slider">
         </div>
 
-        <!-- Minimal Draw Settings (Only visible when trace is active) -->
-        <div class="trace-settings glass-panel" id="trace-settings">
-          <div class="swatch-section">
-            <button class="trace-swatch active" style="background-color: #ff4d6d;" data-color="#ff4d6d"></button>
-            <button class="trace-swatch" style="background-color: #ffffff;" data-color="#ffffff"></button>
-            <button class="trace-swatch" style="background-color: #00d4ff;" data-color="#00d4ff"></button>
+        <div class="panel-section">
+          <div class="slider-header">
+            <span>Opacity</span>
+            <span id="brush-opacity-val">100%</span>
           </div>
-          <div class="slider-section">
-            <i data-lucide="brush"></i>
-            <input type="range" id="trace-brush-size" min="1" max="15" value="3">
+          <input type="range" id="input-brush-opacity" min="1" max="100" value="100" class="studio-slider">
+        </div>
+
+        <div class="panel-section">
+          <div class="slider-header">
+            <span>Stabilizer</span>
+            <span id="brush-stabilizer-val">8</span>
           </div>
+          <input type="range" id="input-brush-stabilizer" min="0" max="30" value="8" class="studio-slider">
+        </div>
+
+        <div class="panel-section">
+          <label for="select-blend-mode">Blending Mode</label>
+          <select id="select-blend-mode" class="studio-select">
+            <option value="source-over">Normal</option>
+            <option value="multiply">Multiply</option>
+            <option value="screen">Screen</option>
+            <option value="overlay">Overlay</option>
+          </select>
+        </div>
+      </aside>
+
+      <!-- CENTER: CANVAS WORKSPACE -->
+      <section class="canvas-workspace" id="canvas-container-mount">
+        
+        <!-- Floating Canvas Box -->
+        <div class="canvas-container" id="canvas-card">
+          <!-- Stack of Canvases representing Layers (Rendered dynamically) -->
+          <div class="canvas-layers" id="canvas-layers-stack">
+            <!-- Layers will be appended here via JS -->
+          </div>
+          
+          <!-- Text Input Overlay (for Text Tool) -->
+          <input type="text" id="canvas-text-input" class="canvas-text-overlay hidden" placeholder="Type here...">
+        </div>
+
+        <!-- Floating Zoom Panel -->
+        <div class="floating-controls glass-panel">
+          <button id="btn-zoom-out" title="Zoom Out"><i data-lucide="zoom-out"></i></button>
+          <span id="zoom-percentage">100%</span>
+          <button id="btn-zoom-in" title="Zoom In"><i data-lucide="zoom-in"></i></button>
+          <div class="control-divider"></div>
+          <button id="btn-reset-view" title="Reset Layout"><i data-lucide="rotate-ccw"></i></button>
         </div>
       </section>
 
-    </main>
+      <!-- RIGHT SIDEBAR: COLOR & LAYER MANAGER -->
+      <aside class="manager-sidebar">
+        
+        <!-- Widget 1: Interactive Color Wheel -->
+        <div class="sidebar-widget glass-panel" id="widget-color">
+          <div class="widget-header">
+            <h4>Color Space</h4>
+            <i data-lucide="palette"></i>
+          </div>
+          <div class="color-space-content">
+            <!-- Canvas Color Wheel -->
+            <div class="wheel-wrapper">
+              <canvas id="color-wheel" width="160" height="160"></canvas>
+              <div class="wheel-picker-dot" id="wheel-picker"></div>
+            </div>
+            <!-- Dynamic Color Previews -->
+            <div class="color-previews">
+              <div class="color-indicator-block" id="active-color-preview"></div>
+              <div class="rgb-inputs">
+                <div class="rgb-row"><span>R</span><input type="number" id="color-r" min="0" max="255" value="255"></div>
+                <div class="rgb-row"><span>G</span><input type="number" id="color-g" min="0" max="255" value="117"></div>
+                <div class="rgb-row"><span>B</span><input type="number" id="color-b" min="0" max="255" value="143"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Widget 2: Advanced Layer Manager -->
+        <div class="sidebar-widget glass-panel flex-grow" id="widget-layers">
+          <div class="widget-header">
+            <h4>Layer Manager</h4>
+            <div class="layer-actions">
+              <button id="btn-add-layer" title="Add Layer"><i data-lucide="plus"></i></button>
+              <button id="btn-delete-layer" title="Delete Layer"><i data-lucide="trash-2"></i></button>
+              <button id="btn-move-up" title="Move Up"><i data-lucide="chevron-up"></i></button>
+              <button id="btn-move-down" title="Move Down"><i data-lucide="chevron-down"></i></button>
+            </div>
+          </div>
+          <div class="layer-manager-content">
+            <!-- Dynamic layer items -->
+            <ul class="layers-list" id="layers-list-mount">
+              <!-- Rendered via JS -->
+            </ul>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
   </div>
 
   <script src="app.js"></script>
